@@ -33,14 +33,16 @@ export function LeadForm({ pageId }: { pageId: string }) {
   }
 
   return (
-    <div className="space-y-4 rounded-3xl bg-white p-6 shadow-xl">
-      <h2 className="text-xl font-bold text-ink">Quero atendimento</h2>
+    <div className="panel space-y-4 p-6">
+      <h2 className="text-xl font-bold text-white">Quero atendimento</h2>
       <input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} placeholder="Seu nome" required />
       <input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Seu telefone" required />
       <textarea value={form.message} onChange={(e) => setForm((s) => ({ ...s, message: e.target.value }))} rows={4} placeholder="Conte rapidamente o que você precisa" required />
-      {feedback && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{feedback}</p>}
-      {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
-      <Button type="button" disabled={loading} onClick={submit} className="w-full text-base">{loading ? 'Enviando...' : 'Enviar agora'}</Button>
+      {feedback && <p className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{feedback}</p>}
+      {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
+      <Button type="button" disabled={loading} onClick={submit} className="w-full text-base">
+        {loading ? 'Enviando...' : 'Enviar agora'}
+      </Button>
     </div>
   );
 }

@@ -33,6 +33,7 @@ export function PageForm({
   useEffect(() => {
     setFormState(editingPage ?? emptyState);
   }, [editingPage]);
+
   const baseUrl = useMemo(() => (typeof window !== 'undefined' ? window.location.origin : ''), []);
 
   async function submit() {
@@ -69,26 +70,39 @@ export function PageForm({
   }
 
   return (
-    <section className="space-y-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <section className="panel space-y-4 p-6">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-lg font-semibold text-ink">{editingPage ? 'Editar página' : 'Criar nova página'}</h3>
+        <h3 className="text-lg font-semibold text-white">{editingPage ? 'Editar página' : 'Nova página'}</h3>
         {editingPage && onCancelEdit && (
-          <button className="text-sm font-medium text-slate-500" onClick={onCancelEdit} type="button">
+          <button className="text-sm font-medium text-slate-300" onClick={onCancelEdit} type="button">
             Cancelar
           </button>
         )}
       </div>
+
       <input value={formState.title} onChange={(e) => setFormState((s) => ({ ...s, title: e.target.value }))} placeholder="Título (opcional)" />
       <textarea value={formState.description} onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))} placeholder="Descreva sua oferta" rows={4} required />
       <input value={formState.businessType} onChange={(e) => setFormState((s) => ({ ...s, businessType: e.target.value }))} placeholder="Ex.: Clínica odontológica" required />
       <input value={formState.whatsapp} onChange={(e) => setFormState((s) => ({ ...s, whatsapp: e.target.value }))} placeholder="WhatsApp com DDI" required />
-      <label className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3 text-sm text-slate-600">
+
+      <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
         <input className="h-4 w-4" checked={formState.isPublished} onChange={(e) => setFormState((s) => ({ ...s, isPublished: e.target.checked }))} type="checkbox" />
         Página publicada e disponível no link público
       </label>
-      {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
-      {createdLink && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">Link gerado: <a className="font-semibold underline" href={createdLink} target="_blank" rel="noreferrer">{createdLink}</a></p>}
-      <Button type="button" disabled={loading} onClick={submit}>{loading ? 'Salvando...' : editingPage ? 'Salvar alterações' : 'Criar página'}</Button>
+
+      {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
+      {createdLink && (
+        <p className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+          Link gerado:{' '}
+          <a className="font-semibold underline" href={createdLink} target="_blank" rel="noreferrer">
+            {createdLink}
+          </a>
+        </p>
+      )}
+
+      <Button type="button" disabled={loading} onClick={submit}>
+        {loading ? 'Salvando...' : editingPage ? 'Salvar alterações' : 'Criar página'}
+      </Button>
     </section>
   );
 }

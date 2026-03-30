@@ -11,12 +11,10 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
     setError('');
-    setSuccess('');
 
     try {
       const payload =
@@ -33,7 +31,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             });
 
       saveAuthSession(payload);
-      setSuccess(mode === 'login' ? 'Login realizado com sucesso.' : 'Conta criada com sucesso.');
       router.push('/pages');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao autenticar');
@@ -43,25 +40,36 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-      <div>
-        <h1 className="text-2xl font-bold text-ink">{mode === 'login' ? 'Entrar' : 'Criar conta'}</h1>
-        <p className="mt-2 text-sm text-slate-500">Acesse seu painel e gerencie páginas e leads sem complicação.</p>
-      </div>
+    <form action={handleSubmit} className="panel space-y-4 p-8">
+      <h1 className="text-2xl font-bold text-white">{mode === 'login' ? 'Acessar painel' : 'Criar conta SaaS'}</h1>
+      <p className="text-sm text-slate-300">Fluxo rápido para times de marketing, comercial e atendimento.</p>
+
       {mode === 'register' && <input name="name" placeholder="Seu nome" required />}
       {mode === 'register' && <input name="tenantName" placeholder="Nome da empresa" required />}
       <input name="email" type="email" placeholder="E-mail" required />
       <input name="password" type="password" placeholder="Senha (mín. 8 caracteres)" minLength={8} required />
-      {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
-      {success && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-600">{success}</p>}
+
+      {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
+
       <Button disabled={loading} className="w-full text-base">
-        {loading ? 'Carregando...' : mode === 'login' ? 'Entrar agora' : 'Criar conta grátis'}
+        {loading ? 'Processando...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
       </Button>
-      <p className="text-center text-sm text-slate-500">
+
+      <p className="text-center text-sm text-slate-400">
         {mode === 'login' ? (
-          <>Não tem conta? <Link href="/register" className="font-semibold text-brand">Cadastre-se</Link></>
+          <>
+            Ainda não tem conta?{' '}
+            <Link href="/register" className="font-semibold text-cyan-300">
+              Começar agora
+            </Link>
+          </>
         ) : (
-          <>Já tem conta? <Link href="/login" className="font-semibold text-brand">Fazer login</Link></>
+          <>
+            Já possui acesso?{' '}
+            <Link href="/login" className="font-semibold text-cyan-300">
+              Fazer login
+            </Link>
+          </>
         )}
       </p>
     </form>

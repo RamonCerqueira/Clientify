@@ -1,14 +1,12 @@
-import Link from 'next/link';
 import { AuthForm } from '@/components/auth/auth-form';
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto grid min-h-screen max-w-6xl gap-8 px-6 py-10 lg:grid-cols-2 lg:items-center">
-      <section>
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand">Login</p>
-        <h1 className="mt-4 text-4xl font-bold text-ink">Acesse seu painel e acompanhe novos leads em tempo real.</h1>
-        <p className="mt-4 text-slate-600">Entre para gerenciar suas páginas, visualizar contatos e responder com rapidez.</p>
-        <p className="mt-6 text-sm text-slate-500">Ainda não tem conta? <Link href="/register" className="font-semibold text-brand">Criar agora</Link></p>
+    <main className="mx-auto grid min-h-screen w-full max-w-6xl gap-8 px-6 py-10 lg:grid-cols-2 lg:items-center">
+      <section className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Login</p>
+        <h1 className="text-4xl font-black text-white md:text-5xl">Seu cockpit de aquisição em um só lugar.</h1>
+        <p className="text-slate-300">Acompanhe páginas, novos leads e negociações em tempo real.</p>
       </section>
       <AuthForm mode="login" />
     </main>
