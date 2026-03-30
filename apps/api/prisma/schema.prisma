@@ -13,55 +13,84 @@ enum Plan {
   PREMIUM
 }
 
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  WON
+  LOST
+}
+
 model Tenant {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  plan      Plan     @default(BASIC)
-  createdAt DateTime @default(now())
-  users     User[]
-  pages     Page[]
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String    @unique
+  plan             Plan      @default(BASIC)
+  planStatus       String    @default("active")
+  trialEndsAt      DateTime?
+  billingEmail     String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  users            User[]
+  pages            Page[]
 
   @@map("tenants")
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  email     String   @unique
-  password  String
-  tenantId  String   @db.Uuid
-  createdAt DateTime @default(now())
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String
+  email            String    @unique
+  password         String
+  role             UserRole  @default(OWNER)
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+  tenantId         String    @db.Uuid
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@map("users")
 }
 
 model Page {
-  id           String   @id @default(uuid()) @db.Uuid
-  title        String
-  description  String
-  businessType String
-  whatsapp     String
-  slug         String   @unique
-  tenantId     String   @db.Uuid
-  createdAt    DateTime @default(now())
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  leads        Lead[]
+  id              String    @id @default(uuid()) @db.Uuid
+  title           String
+  description     String
+  businessType    String
+  whatsapp        String
+  slug            String    @unique
+  isPublished     Boolean   @default(true)
+  tenantId        String    @db.Uuid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leads           Lead[]
 
   @@index([tenantId])
   @@map("pages")
 }
 
 model Lead {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  phone     String
-  message   String
-  pageId    String   @db.Uuid
-  createdAt DateTime @default(now())
-  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String
+  phone       String
+  message     String
+  source      String?    @default("landing-page")
+  status      LeadStatus @default(NEW)
+  pageId      String     @db.Uuid
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  page        Page       @relation(fields: [pageId], references: [id], onDelete: Cascade)
 
   @@index([pageId])
+  @@index([status])
   @@map("leads")
 }

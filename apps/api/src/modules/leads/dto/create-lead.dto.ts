@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 export class CreateLeadDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(80)
   name: string;
 
   @IsString()
@@ -11,9 +12,14 @@ export class CreateLeadDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(600)
   message: string;
 
   @IsString()
   @IsNotEmpty()
   pageId: string;
+
+  @IsOptional()
+  @IsString()
+  source?: string;
 }

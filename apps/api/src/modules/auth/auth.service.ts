@@ -2,8 +2,10 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UsersService } from '../users/users.service';
 import { TenantsService } from '../tenants/tenants.service';
 
@@ -29,9 +31,10 @@ export class AuthService {
       email: dto.email,
       password,
       tenantId: tenant.id,
+      role: 'OWNER',
     });
 
-    return this.issueToken(user.id, user.email, user.tenantId, user.name);
+    return this.issueTokens(user);
   }
 
   async login(dto: LoginDto) {
@@ -40,15 +43,74 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    return this.issueToken(user.id, user.email, user.tenantId, user.name);
+    return this.issueTokens(user);
   }
 
-  private issueToken(userId: string, email: string, tenantId: string, name: string) {
-    const payload = { userId, email, tenantId };
+  async refresh(dto: RefreshTokenDto) {
+    const payload = this.jwtService.verify(dto.refreshToken, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'super-secret-refresh-key'),
+    }) as { userId: string };
+
+    const user = await this.usersService.findById(payload.userId);
+    if (!user?.refreshTokenHash) {
+      throw new UnauthorizedException('Sessão expirada');
+    }
+
+    const valid = await bcrypt.compare(dto.refreshToken, user.refreshTokenHash);
+    if (!valid) {
+      throw new UnauthorizedException('Refresh token inválido');
+    }
+
+    return this.issueTokens(user);
+  }
+
+  async logout(userId: string) {
+    await this.usersService.updateRefreshToken(userId, null);
+    return { success: true };
+  }
+
+  async me(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Usuário não encontrado');
+    }
+
     return {
-      accessToken: this.jwtService.sign(payload),
-      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '1d'),
-      user: { id: userId, email, tenantId, name },
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      tenantId: user.tenantId,
+      role: user.role,
+      lastLoginAt: user.lastLoginAt,
+    };
+  }
+
+  private async issueTokens(user: User) {
+    const payload = { userId: user.id, email: user.email, tenantId: user.tenantId, role: user.role };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_SECRET', 'super-secret-jwt-key'),
+      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m'),
+    });
+    const refreshToken = this.jwtService.sign({ userId: user.id }, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'super-secret-refresh-key'),
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
+    });
+
+    await this.usersService.updateRefreshToken(user.id, await bcrypt.hash(refreshToken, 10));
+    await this.usersService.markLastLogin(user.id);
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m'),
+      refreshExpiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
+      user: {
+        id: user.id,
+        email: user.email,
+        tenantId: user.tenantId,
+        name: user.name,
+        role: user.role,
+      },
     };
   }
 }

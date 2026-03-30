@@ -3,16 +3,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { env } from './config/env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = new Logger('Bootstrap');
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:3000'],
+    origin: env.corsOrigin.split(','),
     credentials: true,
   });
 
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -23,9 +25,8 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = Number(process.env.PORT ?? 4000);
-  await app.listen(port);
-  logger.log(`API disponível em http://localhost:${port}`);
+  await app.listen(env.port);
+  logger.log(`API disponível em http://localhost:${env.port}/api`);
 }
 
 bootstrap();

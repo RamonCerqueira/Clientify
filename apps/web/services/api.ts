@@ -1,4 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+
+export class ApiError extends Error {
+  status?: number;
+}
 
 export async function apiFetch<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -8,12 +12,15 @@ export async function apiFetch<T>(path: string, init?: RequestInit, token?: stri
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers || {}),
     },
+    credentials: 'include',
     cache: 'no-store',
   });
 
-  const payload = await response.json();
+  const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload?.message?.message || payload?.message || 'Erro inesperado');
+    const error = new ApiError(payload?.message?.message || payload?.message || 'Erro inesperado');
+    error.status = response.status;
+    throw error;
   }
 
   return payload.data as T;

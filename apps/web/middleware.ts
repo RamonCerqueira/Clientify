@@ -4,15 +4,24 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/pages', '/leads', '/settings'];
 const authRoutes = ['/login', '/register'];
 
+function isExpired(token: string) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1] ?? ''));
+    return typeof payload.exp === 'number' ? payload.exp * 1000 < Date.now() : false;
+  } catch {
+    return true;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('clientify-token')?.value;
   const { pathname } = request.nextUrl;
 
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !token) {
+  if (protectedRoutes.some((route) => pathname.startsWith(route)) && (!token || isExpired(token))) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (authRoutes.some((route) => pathname.startsWith(route)) && token) {
+  if (authRoutes.some((route) => pathname.startsWith(route)) && token && !isExpired(token)) {
     return NextResponse.redirect(new URL('/pages', request.url));
   }
 

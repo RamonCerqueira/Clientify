@@ -11,6 +11,7 @@ export function DashboardHeader() {
       <div>
         <p className="text-sm text-slate-500">Bem-vindo de volta</p>
         <h2 className="text-xl font-bold text-ink">{session?.user.name || 'Usuário'}</h2>
+        <p className="text-xs text-slate-400">Perfil: {session?.user.role || 'MEMBER'}</p>
       </div>
       <Button type="button" className="md:w-auto" onClick={logout}>
         Sair

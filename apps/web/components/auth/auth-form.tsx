@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/authService';
@@ -50,12 +51,19 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       {mode === 'register' && <input name="name" placeholder="Seu nome" required />}
       {mode === 'register' && <input name="tenantName" placeholder="Nome da empresa" required />}
       <input name="email" type="email" placeholder="E-mail" required />
-      <input name="password" type="password" placeholder="Senha" minLength={6} required />
+      <input name="password" type="password" placeholder="Senha (mín. 8 caracteres)" minLength={8} required />
       {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
       {success && <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-600">{success}</p>}
       <Button disabled={loading} className="w-full text-base">
         {loading ? 'Carregando...' : mode === 'login' ? 'Entrar agora' : 'Criar conta grátis'}
       </Button>
+      <p className="text-center text-sm text-slate-500">
+        {mode === 'login' ? (
+          <>Não tem conta? <Link href="/register" className="font-semibold text-brand">Cadastre-se</Link></>
+        ) : (
+          <>Já tem conta? <Link href="/login" className="font-semibold text-brand">Fazer login</Link></>
+        )}
+      </p>
     </form>
   );
 }

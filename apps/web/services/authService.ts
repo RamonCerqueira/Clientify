@@ -1,4 +1,4 @@
-import { AuthResponse } from '@/types';
+import { AuthResponse, AuthUser } from '@/types';
 import { apiFetch } from './api';
 
 export const authService = {
@@ -12,4 +12,11 @@ export const authService = {
       method: 'POST',
       body: JSON.stringify(input),
     }),
+  refresh: (refreshToken: string) =>
+    apiFetch<AuthResponse>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    }),
+  me: (token: string) => apiFetch<AuthUser>('/auth/me', undefined, token),
+  logout: (token: string) => apiFetch<{ success: boolean }>('/auth/logout', { method: 'POST' }, token),
 };

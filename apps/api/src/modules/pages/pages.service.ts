@@ -8,7 +8,6 @@ import slugify from 'slugify';
 export class PagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Garante que cada página pública receba um slug único e previsível.
   private async buildUniqueSlug(value: string) {
     const base = slugify(value, { lower: true, strict: true, trim: true });
     let slug = base;
@@ -31,9 +30,12 @@ export class PagesService {
 
     return this.prisma.page.create({
       data: {
-        ...dto,
         title,
         slug,
+        description: dto.description,
+        businessType: dto.businessType,
+        whatsapp: dto.whatsapp,
+        isPublished: dto.isPublished ?? true,
         tenantId,
       },
     });
@@ -47,15 +49,33 @@ export class PagesService {
     });
   }
 
+  async getByTenantAndId(tenantId: string, id: string) {
+    const page = await this.prisma.page.findFirst({
+      where: { id, tenantId },
+      include: { _count: { select: { leads: true } } },
+    });
+    if (!page) throw new NotFoundException('Página não encontrada para este tenant');
+    return page;
+  }
+
   async getPublicBySlug(slug: string) {
-    const page = await this.prisma.page.findUnique({ where: { slug } });
+    const page = await this.prisma.page.findFirst({ where: { slug, isPublished: true } });
     if (!page) throw new NotFoundException('Página não encontrada');
     return page;
   }
 
   async update(tenantId: string, id: string, dto: UpdatePageDto) {
-    await this.ensureTenantOwnership(tenantId, id);
-    return this.prisma.page.update({ where: { id }, data: dto });
+    const current = await this.ensureTenantOwnership(tenantId, id);
+    const title = dto.title?.trim() || current.title;
+
+    return this.prisma.page.update({
+      where: { id },
+      data: {
+        ...dto,
+        title,
+        slug: dto.title && dto.title !== current.title ? await this.buildUniqueSlug(dto.title) : current.slug,
+      },
+    });
   }
 
   async remove(tenantId: string, id: string) {

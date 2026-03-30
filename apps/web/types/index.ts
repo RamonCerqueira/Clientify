@@ -1,12 +1,18 @@
+export type AuthUser = {
+  id: string;
+  email: string;
+  tenantId: string;
+  name: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  lastLoginAt?: string | null;
+};
+
 export type AuthResponse = {
   accessToken: string;
+  refreshToken: string;
   expiresIn: string;
-  user: {
-    id: string;
-    email: string;
-    tenantId: string;
-    name: string;
-  };
+  refreshExpiresIn: string;
+  user: AuthUser;
 };
 
 export type Page = {
@@ -16,14 +22,19 @@ export type Page = {
   businessType: string;
   whatsapp: string;
   slug: string;
+  isPublished: boolean;
   createdAt: string;
   _count?: { leads: number };
 };
+
+export type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'WON' | 'LOST';
 
 export type Lead = {
   id: string;
   name: string;
   phone: string;
   message: string;
+  source?: string | null;
+  status: LeadStatus;
   createdAt: string;
 };

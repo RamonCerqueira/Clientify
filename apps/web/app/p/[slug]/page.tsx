@@ -7,8 +7,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const page = await pageService.getPublic(slug);
 
   return {
-    title: page.title,
+    title: `${page.title} | Clientify`,
     description: page.description,
+    openGraph: {
+      title: page.title,
+      description: page.description,
+      type: 'website',
+    },
   };
 }
 

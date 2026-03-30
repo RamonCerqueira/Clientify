@@ -3,7 +3,16 @@ import { map, Observable } from 'rxjs';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-  intercept(_: ExecutionContext, next: CallHandler): Observable<unknown> {
-    return next.handle().pipe(map((data) => ({ data, timestamp: new Date().toISOString() })));
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const request = context.switchToHttp().getRequest<{ tenantId?: string }>();
+    return next.handle().pipe(
+      map((data) => ({
+        data,
+        meta: {
+          tenantId: request.tenantId ?? null,
+          timestamp: new Date().toISOString(),
+        },
+      })),
+    );
   }
 }
