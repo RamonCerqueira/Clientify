@@ -24,6 +24,14 @@ async function bootstrap() {
     next();
   });
 
+  // Compatibilidade temporária para clientes que ainda chamam /auth/* sem /api.
+  app.use((request: Request, _: Response, next: NextFunction) => {
+    if (request.url.startsWith('/auth/')) {
+      request.url = `/api${request.url}`;
+    }
+    next();
+  });
+
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
