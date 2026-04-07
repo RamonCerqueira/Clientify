@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -12,6 +13,15 @@ async function bootstrap() {
   app.enableCors({
     origin: env.corsOrigin.split(','),
     credentials: true,
+  });
+
+  // Security headers mínimos sem dependências extras.
+  app.use((_: Request, response: Response, next: NextFunction) => {
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('X-Frame-Options', 'DENY');
+    response.setHeader('Referrer-Policy', 'no-referrer');
+    response.setHeader('X-XSS-Protection', '0');
+    next();
   });
 
   app.setGlobalPrefix('api');

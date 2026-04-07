@@ -4,47 +4,67 @@ import { useEffect, useMemo, useState } from 'react';
 import { getValidAccessToken } from '@/hooks/useAuth';
 import { leadService } from '@/services/leadService';
 import { pageService } from '@/services/pageService';
-import { Lead, LeadStatus, Page } from '@/types';
+import { Lead, LeadStatus, Page, PaginationMeta } from '@/types';
 
 const statuses: Array<LeadStatus | 'ALL'> = ['ALL', 'NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'];
+
+const defaultPagination: PaginationMeta = {
+  page: 1,
+  pageSize: 20,
+  total: 0,
+  totalPages: 0,
+};
 
 export default function LeadsDashboardPage() {
   const [pages, setPages] = useState<Page[]>([]);
   const [selectedPage, setSelectedPage] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<LeadStatus | 'ALL'>('ALL');
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [search, setSearch] = useState('');
   const [error, setError] = useState('');
+  const [pagination, setPagination] = useState<PaginationMeta>(defaultPagination);
 
   useEffect(() => {
     (async () => {
       const token = await getValidAccessToken();
       if (!token) return;
-      pageService.list(token).then((items) => {
-        setPages(items);
-        if (items[0]) setSelectedPage(items[0].id);
+      pageService.list(token, 1, 100).then((result) => {
+        setPages(result.items);
+        if (result.items[0]) setSelectedPage(result.items[0].id);
       });
     })();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      const token = await getValidAccessToken();
-      if (!token || !selectedPage) return;
+  async function loadLeads(page = 1) {
+    const token = await getValidAccessToken();
+    if (!token || !selectedPage) return;
 
-      leadService
-        .listByPage(token, selectedPage, selectedStatus)
-        .then(setLeads)
-        .catch((err) => setError(err instanceof Error ? err.message : 'Falha ao carregar leads'));
-    })();
+    leadService
+      .listByPage(token, selectedPage, selectedStatus, page)
+      .then((result) => {
+        setLeads(result.items);
+        setPagination(result.pagination);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Falha ao carregar leads'));
+  }
+
+  useEffect(() => {
+    void loadLeads(1);
   }, [selectedPage, selectedStatus]);
+
+  const filteredLeads = useMemo(() => {
+    if (!search.trim()) return leads;
+    const term = search.toLowerCase();
+    return leads.filter((lead) => lead.name.toLowerCase().includes(term) || lead.phone.includes(term));
+  }, [leads, search]);
 
   const summary = useMemo(
     () => ({
-      total: leads.length,
+      total: pagination.total,
       won: leads.filter((lead) => lead.status === 'WON').length,
       qualified: leads.filter((lead) => lead.status === 'QUALIFIED').length,
     }),
-    [leads],
+    [leads, pagination.total],
   );
 
   async function updateStatus(leadId: string, status: LeadStatus) {
@@ -65,10 +85,10 @@ export default function LeadsDashboardPage() {
 
       <div>
         <h1 className="text-xl font-bold text-white">Leads</h1>
-        <p className="text-sm text-slate-300">Filtre por página e acompanhe a evolução do pipeline.</p>
+        <p className="text-sm text-slate-300">Filtre por página, status e busca textual para operar em escala.</p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <select value={selectedPage} onChange={(event) => setSelectedPage(event.target.value)}>
           <option value="">Selecione uma página</option>
           {pages.map((page) => (
@@ -84,12 +104,13 @@ export default function LeadsDashboardPage() {
             </option>
           ))}
         </select>
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por nome/telefone" />
       </div>
 
       {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
 
       <div className="space-y-4">
-        {leads.map((lead) => (
+        {filteredLeads.map((lead) => (
           <article key={lead.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
@@ -124,7 +145,31 @@ export default function LeadsDashboardPage() {
           </article>
         ))}
 
-        {!leads.length && <p className="text-sm text-slate-300">Nenhum lead encontrado para o filtro selecionado.</p>}
+        {!filteredLeads.length && <p className="text-sm text-slate-300">Nenhum lead encontrado para o filtro selecionado.</p>}
+      </div>
+
+      <div className="flex items-center justify-between text-sm text-slate-300">
+        <p>
+          Página {pagination.page} de {Math.max(1, pagination.totalPages)} · {pagination.total} leads
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 disabled:opacity-50"
+            onClick={() => void loadLeads(Math.max(1, pagination.page - 1))}
+            disabled={pagination.page <= 1}
+          >
+            Anterior
+          </button>
+          <button
+            type="button"
+            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 disabled:opacity-50"
+            onClick={() => void loadLeads(Math.min(Math.max(1, pagination.totalPages), pagination.page + 1))}
+            disabled={pagination.page >= Math.max(1, pagination.totalPages)}
+          >
+            Próxima
+          </button>
+        </div>
       </div>
     </section>
   );

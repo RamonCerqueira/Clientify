@@ -4,28 +4,39 @@ import { useEffect, useState } from 'react';
 import { PageForm } from '@/components/forms/page-form';
 import { getValidAccessToken } from '@/hooks/useAuth';
 import { pageService } from '@/services/pageService';
-import { Page } from '@/types';
+import { Page, PaginationMeta } from '@/types';
+
+const defaultPagination: PaginationMeta = {
+  page: 1,
+  pageSize: 20,
+  total: 0,
+  totalPages: 0,
+};
 
 export default function PagesDashboardPage() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [pagination, setPagination] = useState<PaginationMeta>(defaultPagination);
 
-  async function loadPages() {
+  async function loadPages(page = 1) {
     const token = await getValidAccessToken();
     if (!token) return;
 
     setLoading(true);
     pageService
-      .list(token)
-      .then(setPages)
+      .list(token, page)
+      .then((result) => {
+        setPages(result.items);
+        setPagination(result.pagination);
+      })
       .catch((err) => setError(err instanceof Error ? err.message : 'Falha ao carregar páginas'))
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    void loadPages();
+    void loadPages(1);
   }, []);
 
   async function handleDelete(id: string) {
@@ -34,7 +45,7 @@ export default function PagesDashboardPage() {
     if (!window.confirm('Deseja realmente remover esta página?')) return;
 
     await pageService.remove(token, id);
-    setPages((current) => current.filter((page) => page.id !== id));
+    await loadPages(pagination.page);
     if (editingPage?.id === id) setEditingPage(null);
   }
 
@@ -43,7 +54,7 @@ export default function PagesDashboardPage() {
       <PageForm
         editingPage={editingPage}
         onCancelEdit={() => setEditingPage(null)}
-        onCreated={(page) => setPages((current) => [page, ...current])}
+        onCreated={() => void loadPages(1)}
         onUpdated={(updated) => {
           setPages((current) => current.map((page) => (page.id === updated.id ? updated : page)));
           setEditingPage(null);
@@ -91,6 +102,30 @@ export default function PagesDashboardPage() {
           ))}
 
           {!loading && !pages.length && <p className="text-sm text-slate-300">Nenhuma página criada ainda.</p>}
+        </div>
+
+        <div className="mt-6 flex items-center justify-between text-sm text-slate-300">
+          <p>
+            Página {pagination.page} de {Math.max(pagination.totalPages, 1)} · {pagination.total} registros
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 disabled:opacity-50"
+              onClick={() => void loadPages(Math.max(1, pagination.page - 1))}
+              disabled={pagination.page <= 1}
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 disabled:opacity-50"
+              onClick={() => void loadPages(Math.min(Math.max(1, pagination.totalPages), pagination.page + 1))}
+              disabled={pagination.page >= Math.max(1, pagination.totalPages)}
+            >
+              Próxima
+            </button>
+          </div>
         </div>
       </section>
     </div>

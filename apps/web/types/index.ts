@@ -15,6 +15,18 @@ export type AuthResponse = {
   user: AuthUser;
 };
 
+export type PaginationMeta = {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
+
+export type Paginated<T> = {
+  items: T[];
+  pagination: PaginationMeta;
+};
+
 export type Page = {
   id: string;
   title: string;

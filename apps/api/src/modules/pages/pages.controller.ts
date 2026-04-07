@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import { RequestUser } from '../../common/interfaces/request-user.interface';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
@@ -16,12 +17,12 @@ export class PagesController {
   }
 
   @Get()
-  list(@CurrentUser() user: RequestUser) {
-    return this.pagesService.listByTenant(user.tenantId);
+  list(@CurrentUser() user: RequestUser, @Query() pagination: PaginationDto) {
+    return this.pagesService.listByTenant(user.tenantId, pagination);
   }
 
   @Get('id/:id')
-  getById(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+  getById(@CurrentUser() user: RequestUser, @Param('id', new ParseUUIDPipe()) id: string) {
     return this.pagesService.getByTenantAndId(user.tenantId, id);
   }
 
@@ -32,12 +33,16 @@ export class PagesController {
   }
 
   @Patch(':id')
-  update(@CurrentUser() user: RequestUser, @Param('id') id: string, @Body() dto: UpdatePageDto) {
+  update(
+    @CurrentUser() user: RequestUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdatePageDto,
+  ) {
     return this.pagesService.update(user.tenantId, id, dto);
   }
 
   @Delete(':id')
-  remove(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+  remove(@CurrentUser() user: RequestUser, @Param('id', new ParseUUIDPipe()) id: string) {
     return this.pagesService.remove(user.tenantId, id);
   }
 }

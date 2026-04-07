@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import slugify from 'slugify';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
-import slugify from 'slugify';
 
 @Injectable()
 export class PagesService {
@@ -41,12 +42,30 @@ export class PagesService {
     });
   }
 
-  listByTenant(tenantId: string) {
-    return this.prisma.page.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      include: { _count: { select: { leads: true } } },
-    });
+  async listByTenant(tenantId: string, pagination: PaginationDto) {
+    const page = pagination.page ?? 1;
+    const pageSize = pagination.pageSize ?? 20;
+
+    const [items, total] = await Promise.all([
+      this.prisma.page.findMany({
+        where: { tenantId },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { _count: { select: { leads: true } } },
+      }),
+      this.prisma.page.count({ where: { tenantId } }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
   }
 
   async getByTenantAndId(tenantId: string, id: string) {
