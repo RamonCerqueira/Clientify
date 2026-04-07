@@ -4,20 +4,20 @@ export class CreateLeadDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(80)
-  name: string;
+  name!: string;
 
   @IsString()
   @Matches(/^\+?[0-9]{10,15}$/)
-  phone: string;
+  phone!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(600)
-  message: string;
+  message!: string;
 
   @IsString()
   @IsNotEmpty()
-  pageId: string;
+  pageId!: string;
 
   @IsOptional()
   @IsString()

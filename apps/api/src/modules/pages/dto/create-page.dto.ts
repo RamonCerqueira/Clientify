@@ -9,16 +9,16 @@ export class CreatePageDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
-  description: string;
+  description!: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(80)
-  businessType: string;
+  businessType!: string;
 
   @IsString()
   @Matches(/^\+?[0-9]{10,15}$/)
-  whatsapp: string;
+  whatsapp!: string;
 
   @IsOptional()
   @IsBoolean()

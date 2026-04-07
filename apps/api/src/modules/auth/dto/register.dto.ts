@@ -4,18 +4,18 @@ import { Plan } from '@prisma/client';
 export class RegisterDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 
   @IsString()
   @IsNotEmpty()
-  tenantName: string;
+  tenantName!: string;
 
   @IsOptional()
   @IsEnum(Plan)
