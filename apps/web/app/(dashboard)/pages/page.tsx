@@ -64,6 +64,23 @@ export default function PagesDashboardPage() {
       <section className="panel p-6">
         <h1 className="text-xl font-bold text-white">Minhas páginas</h1>
         <p className="mb-5 text-sm text-slate-300">Crie, edite e publique experiências de captação com identidade visual premium.</p>
+        <div className="mb-6 grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Etapa 01</p>
+            <p className="mt-2 text-sm font-semibold text-white">Defina a oferta</p>
+            <p className="mt-1 text-xs text-slate-300">Headline, subheadline e promessa central com foco em dor/ganho.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Etapa 02</p>
+            <p className="mt-2 text-sm font-semibold text-white">Estruture a conversão</p>
+            <p className="mt-1 text-xs text-slate-300">CTA, formulário e contato via WhatsApp para acelerar resposta.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Etapa 03</p>
+            <p className="mt-2 text-sm font-semibold text-white">Publique e otimize</p>
+            <p className="mt-1 text-xs text-slate-300">Acompanhe leads e ajuste layout/textos com base no desempenho.</p>
+          </div>
+        </div>
 
         {loading && <p className="text-sm text-slate-300">Carregando páginas...</p>}
         {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
