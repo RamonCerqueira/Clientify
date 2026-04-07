@@ -11,6 +11,31 @@ export class CreatePageDto {
   @MaxLength(500)
   description!: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  heroHeadline?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(240)
+  heroSubheadline?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  ctaText?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^(MODERN|MINIMALIST|TECH)$/)
+  layoutStyle?: 'MODERN' | 'MINIMALIST' | 'TECH';
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/)
+  primaryColor?: string;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(80)

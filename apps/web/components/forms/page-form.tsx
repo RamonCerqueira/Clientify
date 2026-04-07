@@ -9,10 +9,31 @@ import { Page } from '@/types';
 const emptyState = {
   title: '',
   description: '',
+  heroHeadline: '',
+  heroSubheadline: '',
+  ctaText: 'Quero atendimento',
+  layoutStyle: 'MODERN' as const,
+  primaryColor: '#22d3ee',
   businessType: '',
   whatsapp: '',
   isPublished: true,
 };
+
+function toFormState(page?: Page | null) {
+  if (!page) return emptyState;
+  return {
+    title: page.title ?? '',
+    description: page.description ?? '',
+    heroHeadline: page.heroHeadline ?? '',
+    heroSubheadline: page.heroSubheadline ?? '',
+    ctaText: page.ctaText ?? 'Quero atendimento',
+    layoutStyle: page.layoutStyle ?? 'MODERN',
+    primaryColor: page.primaryColor ?? '#22d3ee',
+    businessType: page.businessType ?? '',
+    whatsapp: page.whatsapp ?? '',
+    isPublished: page.isPublished ?? true,
+  };
+}
 
 export function PageForm({
   onCreated,
@@ -28,10 +49,10 @@ export function PageForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [createdLink, setCreatedLink] = useState('');
-  const [formState, setFormState] = useState(editingPage ?? emptyState);
+  const [formState, setFormState] = useState(toFormState(editingPage));
 
   useEffect(() => {
-    setFormState(editingPage ?? emptyState);
+    setFormState(toFormState(editingPage));
   }, [editingPage]);
 
   const baseUrl = useMemo(() => (typeof window !== 'undefined' ? window.location.origin : ''), []);
@@ -47,6 +68,11 @@ export function PageForm({
       const payload = {
         title: formState.title,
         description: formState.description,
+        heroHeadline: formState.heroHeadline,
+        heroSubheadline: formState.heroSubheadline,
+        ctaText: formState.ctaText,
+        layoutStyle: formState.layoutStyle,
+        primaryColor: formState.primaryColor,
         businessType: formState.businessType,
         whatsapp: formState.whatsapp,
         isPublished: formState.isPublished,
@@ -82,6 +108,24 @@ export function PageForm({
 
       <input value={formState.title} onChange={(e) => setFormState((s) => ({ ...s, title: e.target.value }))} placeholder="Título (opcional)" />
       <textarea value={formState.description} onChange={(e) => setFormState((s) => ({ ...s, description: e.target.value }))} placeholder="Descreva sua oferta" rows={4} required />
+      <input value={formState.heroHeadline} onChange={(e) => setFormState((s) => ({ ...s, heroHeadline: e.target.value }))} placeholder="Headline principal (hero)" />
+      <input
+        value={formState.heroSubheadline}
+        onChange={(e) => setFormState((s) => ({ ...s, heroSubheadline: e.target.value }))}
+        placeholder="Subheadline com proposta de valor"
+      />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <select value={formState.layoutStyle} onChange={(e) => setFormState((s) => ({ ...s, layoutStyle: e.target.value as 'MODERN' | 'MINIMALIST' | 'TECH' }))}>
+          <option value="MODERN">Layout moderno</option>
+          <option value="MINIMALIST">Layout minimalista</option>
+          <option value="TECH">Layout tech</option>
+        </select>
+        <input value={formState.ctaText} onChange={(e) => setFormState((s) => ({ ...s, ctaText: e.target.value }))} placeholder="Texto do botão CTA" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
+        <input value={formState.primaryColor} onChange={(e) => setFormState((s) => ({ ...s, primaryColor: e.target.value }))} placeholder="#22d3ee" />
+        <input type="color" value={formState.primaryColor} onChange={(e) => setFormState((s) => ({ ...s, primaryColor: e.target.value }))} aria-label="Cor principal" />
+      </div>
       <input value={formState.businessType} onChange={(e) => setFormState((s) => ({ ...s, businessType: e.target.value }))} placeholder="Ex.: Clínica odontológica" required />
       <input value={formState.whatsapp} onChange={(e) => setFormState((s) => ({ ...s, whatsapp: e.target.value }))} placeholder="WhatsApp com DDI" required />
 

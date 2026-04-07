@@ -31,6 +31,11 @@ export type Page = {
   id: string;
   title: string;
   description: string;
+  heroHeadline?: string | null;
+  heroSubheadline?: string | null;
+  ctaText: string;
+  layoutStyle: 'MODERN' | 'MINIMALIST' | 'TECH';
+  primaryColor: string;
   businessType: string;
   whatsapp: string;
   slug: string;

@@ -27,6 +27,12 @@ enum LeadStatus {
   LOST
 }
 
+enum PageLayoutStyle {
+  MODERN
+  MINIMALIST
+  TECH
+}
+
 model Tenant {
   id               String    @id @default(uuid()) @db.Uuid
   name             String
@@ -64,6 +70,11 @@ model Page {
   id              String    @id @default(uuid()) @db.Uuid
   title           String
   description     String
+  heroHeadline    String?
+  heroSubheadline String?
+  ctaText         String    @default("Quero atendimento")
+  layoutStyle     PageLayoutStyle @default(MODERN)
+  primaryColor    String    @default("#22d3ee")
   businessType    String
   whatsapp        String
   slug            String    @unique
