@@ -27,10 +27,15 @@ async function bootstrap() {
 
   // Compatibilidade temporária para clientes que ainda chamam rotas sem o prefixo /api.
   app.use((request: Request, _: Response, next: NextFunction) => {
-    const hasApiPrefix = request.url === '/api' || request.url.startsWith('/api/');
-    const legacyApiPath = /^(\/(auth|pages|leads|health))(\/|$)/.test(request.url);
+    const normalizedUrl = request.url.replace(/^\/+/, '/');
+    request.url = normalizedUrl;
+
+    const hasApiPrefix =
+      normalizedUrl === '/api' || normalizedUrl.startsWith('/api/') || normalizedUrl.startsWith('/api?');
+    const legacyApiPath = /^(\/(auth|pages|leads|health))(\/|$|\?)/.test(normalizedUrl);
+
     if (!hasApiPrefix && legacyApiPath) {
-      request.url = `/api${request.url}`;
+      request.url = `/api${normalizedUrl}`;
     }
     next();
   });
