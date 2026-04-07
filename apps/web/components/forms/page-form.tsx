@@ -168,6 +168,27 @@ export function PageForm({
           </button>
         )}
       </div>
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Modelos prontos</p>
+        <div className="grid gap-3">
+          {pagePresets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() =>
+                setFormState((state) => ({
+                  ...state,
+                  ...preset.values,
+                }))
+              }
+              className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-300/40 hover:bg-cyan-400/10"
+            >
+              <p className="font-semibold text-white">{preset.label}</p>
+              <p className="mt-1 text-sm text-slate-300">{preset.description}</p>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid gap-2">
         {pagePresets.map((preset) => (
