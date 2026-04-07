@@ -9,6 +9,7 @@ import { env } from './config/env';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = new Logger('Bootstrap');
+  const expressApp = app.getHttpAdapter().getInstance();
 
   app.enableCors({
     origin: env.corsOrigin.split(','),
@@ -22,6 +23,33 @@ async function bootstrap() {
     response.setHeader('Referrer-Policy', 'no-referrer');
     response.setHeader('X-XSS-Protection', '0');
     next();
+  });
+
+  // Compatibilidade temporária para clientes que ainda chamam rotas sem o prefixo /api.
+  app.use((request: Request, _: Response, next: NextFunction) => {
+    const normalizedUrl = request.url.replace(/^\/+/, '/');
+    request.url = normalizedUrl;
+
+    const hasApiPrefix =
+      normalizedUrl === '/api' || normalizedUrl.startsWith('/api/') || normalizedUrl.startsWith('/api?');
+    const legacyApiPath = /^(\/(auth|pages|leads|health))(\/|$|\?)/.test(normalizedUrl);
+
+    if (!hasApiPrefix && legacyApiPath) {
+      request.url = `/api${normalizedUrl}`;
+    }
+    next();
+  });
+
+  expressApp.get('/api', (_: Request, response: Response) => {
+    response.status(200).json({
+      status: 'ok',
+      service: 'clientify-api',
+      docs: '/api/health',
+    });
+  });
+
+  expressApp.get('/favicon.ico', (_: Request, response: Response) => {
+    response.status(204).send();
   });
 
   app.setGlobalPrefix('api');
