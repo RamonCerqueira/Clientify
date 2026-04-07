@@ -6,3 +6,5 @@ dist
 coverage
 npm-debug.log*
 prisma/dev.db
+
+!**/.env.example
