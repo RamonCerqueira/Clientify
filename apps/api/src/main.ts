@@ -25,9 +25,11 @@ async function bootstrap() {
     next();
   });
 
-  // Compatibilidade temporária para clientes que ainda chamam /auth/* sem /api.
+  // Compatibilidade temporária para clientes que ainda chamam rotas sem o prefixo /api.
   app.use((request: Request, _: Response, next: NextFunction) => {
-    if (request.url.startsWith('/auth/')) {
+    const hasApiPrefix = request.url === '/api' || request.url.startsWith('/api/');
+    const legacyApiPath = /^(\/(auth|pages|leads|health))(\/|$)/.test(request.url);
+    if (!hasApiPrefix && legacyApiPath) {
       request.url = `/api${request.url}`;
     }
     next();
