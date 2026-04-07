@@ -9,6 +9,7 @@ import { env } from './config/env';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = new Logger('Bootstrap');
+  const expressApp = app.getHttpAdapter().getInstance();
 
   app.enableCors({
     origin: env.corsOrigin.split(','),
@@ -22,6 +23,26 @@ async function bootstrap() {
     response.setHeader('Referrer-Policy', 'no-referrer');
     response.setHeader('X-XSS-Protection', '0');
     next();
+  });
+
+  // Compatibilidade temporária para clientes que ainda chamam /auth/* sem /api.
+  app.use((request: Request, _: Response, next: NextFunction) => {
+    if (request.url.startsWith('/auth/')) {
+      request.url = `/api${request.url}`;
+    }
+    next();
+  });
+
+  expressApp.get('/api', (_: Request, response: Response) => {
+    response.status(200).json({
+      status: 'ok',
+      service: 'clientify-api',
+      docs: '/api/health',
+    });
+  });
+
+  expressApp.get('/favicon.ico', (_: Request, response: Response) => {
+    response.status(204).send();
   });
 
   app.setGlobalPrefix('api');
