@@ -44,11 +44,19 @@ export function LeadForm({
 
   return (
     <div className={`space-y-4 rounded-[32px] border p-6 shadow-2xl ${minimalist ? 'border-slate-200 bg-white text-slate-900' : 'border-white/10 bg-white/5 text-white backdrop-blur-xl'}`}>
-      <h2 className="text-xl font-bold">{ctaText}</h2>
-      <input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} placeholder="Seu nome" required />
-      <input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Seu telefone" required />
-      <input value={form.email} onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))} placeholder="Seu melhor e-mail" />
-      <input value={form.company} onChange={(e) => setForm((s) => ({ ...s, company: e.target.value }))} placeholder="Empresa (opcional)" />
+      <div>
+        <h2 className="text-xl font-bold">{ctaText}</h2>
+        <p className={`mt-1 text-sm ${minimalist ? 'text-slate-600' : 'text-slate-300'}`}>Preencha em menos de 1 minuto para receber retorno do time comercial.</p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} placeholder="Seu nome" required />
+        <input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Seu telefone" required />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <input value={form.email} onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))} placeholder="Seu melhor e-mail" />
+        <input value={form.company} onChange={(e) => setForm((s) => ({ ...s, company: e.target.value }))} placeholder="Empresa (opcional)" />
+      </div>
       <select value={form.budget} onChange={(e) => setForm((s) => ({ ...s, budget: e.target.value }))}>
         <option value="">Faixa de investimento</option>
         <option value="Até R$ 2 mil">Até R$ 2 mil</option>
@@ -56,6 +64,7 @@ export function LeadForm({
         <option value="Acima de R$ 10 mil">Acima de R$ 10 mil</option>
       </select>
       <textarea value={form.message} onChange={(e) => setForm((s) => ({ ...s, message: e.target.value }))} rows={4} placeholder="Conte rapidamente o que você precisa" required />
+      <p className={`text-xs ${minimalist ? 'text-slate-500' : 'text-slate-400'}`}>Ao enviar, você concorda com o contato para diagnóstico e proposta comercial.</p>
       {feedback && <p className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{feedback}</p>}
       {error && <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
       <Button type="button" disabled={loading} onClick={submit} className="w-full text-base text-slate-950" style={{ backgroundColor: accentColor }}>

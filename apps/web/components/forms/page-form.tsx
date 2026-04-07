@@ -19,6 +19,51 @@ const emptyState = {
   isPublished: true,
 };
 
+const pagePresets = [
+  {
+    id: 'servicos-premium',
+    label: 'Serviços premium',
+    description: 'Landing page para clínicas, consultorias e agências com CTA forte.',
+    values: {
+      title: 'Diagnóstico estratégico gratuito',
+      description: 'Preencha o formulário para receber uma análise personalizada e plano de ação em até 24h.',
+      heroHeadline: 'Atraia clientes mais qualificados sem desperdiçar orçamento',
+      heroSubheadline: 'Estratégia orientada por dados para acelerar vendas e aumentar previsibilidade comercial.',
+      ctaText: 'Quero minha análise',
+      layoutStyle: 'MODERN' as const,
+      primaryColor: '#22d3ee',
+    },
+  },
+  {
+    id: 'saas-b2b',
+    label: 'SaaS B2B',
+    description: 'Estrutura inspirada em software B2B com prova de valor e contato rápido.',
+    values: {
+      title: 'Solicite uma demonstração guiada',
+      description: 'Conheça como automatizar seu funil de ponta a ponta com relatórios e CRM unificados.',
+      heroHeadline: 'Converta leads em receita com um funil inteligente',
+      heroSubheadline: 'Do primeiro clique ao fechamento: operação comercial centralizada e escalável.',
+      ctaText: 'Agendar demonstração',
+      layoutStyle: 'TECH' as const,
+      primaryColor: '#38bdf8',
+    },
+  },
+  {
+    id: 'campanha-ppc',
+    label: 'Campanha PPC',
+    description: 'Página minimalista para mídia paga e foco total na taxa de conversão.',
+    values: {
+      title: 'Fale com um especialista agora',
+      description: 'Equipe pronta para montar sua campanha e gerar oportunidades qualificadas.',
+      heroHeadline: 'Transforme cliques em reuniões comerciais',
+      heroSubheadline: 'Mensagem direta, formulários curtos e acompanhamento completo no WhatsApp.',
+      ctaText: 'Receber proposta',
+      layoutStyle: 'MINIMALIST' as const,
+      primaryColor: '#0ea5e9',
+    },
+  },
+];
+
 function toFormState(page?: Page | null) {
   if (!page) return emptyState;
   return {
@@ -104,6 +149,27 @@ export function PageForm({
             Cancelar
           </button>
         )}
+      </div>
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Modelos prontos</p>
+        <div className="grid gap-3">
+          {pagePresets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() =>
+                setFormState((state) => ({
+                  ...state,
+                  ...preset.values,
+                }))
+              }
+              className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-300/40 hover:bg-cyan-400/10"
+            >
+              <p className="font-semibold text-white">{preset.label}</p>
+              <p className="mt-1 text-sm text-slate-300">{preset.description}</p>
+            </button>
+          ))}
+        </div>
       </div>
 
       <input value={formState.title} onChange={(e) => setFormState((s) => ({ ...s, title: e.target.value }))} placeholder="Título (opcional)" />
