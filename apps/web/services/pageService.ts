@@ -7,7 +7,18 @@ export const pageService = {
   getById: (token: string, id: string) => apiFetch<Page>(`/pages/id/${id}`, undefined, token),
   create: (
     token: string,
-    input: { title?: string; description: string; businessType: string; whatsapp: string; isPublished?: boolean },
+    input: {
+      title?: string;
+      description: string;
+      heroHeadline?: string;
+      heroSubheadline?: string;
+      ctaText?: string;
+      layoutStyle?: 'MODERN' | 'MINIMALIST' | 'TECH';
+      primaryColor?: string;
+      businessType: string;
+      whatsapp: string;
+      isPublished?: boolean;
+    },
   ) =>
     apiFetch<Page>(
       '/pages',
@@ -20,7 +31,18 @@ export const pageService = {
   update: (
     token: string,
     id: string,
-    input: Partial<{ title: string; description: string; businessType: string; whatsapp: string; isPublished: boolean }>,
+    input: Partial<{
+      title: string;
+      description: string;
+      heroHeadline: string;
+      heroSubheadline: string;
+      ctaText: string;
+      layoutStyle: 'MODERN' | 'MINIMALIST' | 'TECH';
+      primaryColor: string;
+      businessType: string;
+      whatsapp: string;
+      isPublished: boolean;
+    }>,
   ) =>
     apiFetch<Page>(
       `/pages/${id}`,

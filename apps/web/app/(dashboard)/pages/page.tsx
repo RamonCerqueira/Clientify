@@ -80,7 +80,7 @@ export default function PagesDashboardPage() {
                     </span>
                   </div>
                   <p className="text-sm text-slate-300">{page.description}</p>
-                  <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">/{page.slug}</p>
+                  <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">/{page.slug} · {page.layoutStyle}</p>
                 </div>
                 <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-100">
                   {page._count?.leads ?? 0} leads
