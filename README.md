@@ -26,6 +26,8 @@ npm run dev:api
 npm run dev:web
 ```
 
+> `NEXT_PUBLIC_API_URL` deve apontar para a base da API com prefixo `/api` (ex.: `http://localhost:4000/api`).
+
 ## Banco de dados
 ```bash
 docker compose up -d
